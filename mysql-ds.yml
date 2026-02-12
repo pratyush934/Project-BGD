@@ -1,10 +1,12 @@
 ---
-# MySQL Deployment with Resource Requests
+# MySQL Deployment (Optimized for t3.micro)
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mysql
+  namespace: webapps
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: mysql
@@ -16,31 +18,34 @@ spec:
         app: mysql
     spec:
       containers:
-      - image: mysql:8
-        name: mysql
+      - name: mysql
+        image: mysql:8
+        ports:
+        - containerPort: 3306
+          name: mysql
         env:
         - name: MYSQL_ROOT_PASSWORD
           value: "Test@123"
         - name: MYSQL_DATABASE
           value: "bankappdb"
-        ports:
-        - containerPort: 3306
-          name: mysql
         resources:
           requests:
-            memory: "1Gi"
-            cpu: "500m"
+            memory: "256Mi"
+            cpu: "200m"
           limits:
-            memory: "2Gi"
-            cpu: "1000m"
+            memory: "512Mi"
+            cpu: "500m"
+
 ---
 # MySQL Service
 apiVersion: v1
 kind: Service
 metadata:
   name: mysql-service
+  namespace: webapps
 spec:
   ports:
   - port: 3306
+    targetPort: 3306
   selector:
     app: mysql
